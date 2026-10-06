@@ -13,14 +13,6 @@ namespace Almamari_NewMVC.Controllers
         private readonly ApplicationDbContext _db;
         public ProductsController(ApplicationDbContext db) { _db = db; }
 
-        // shows the list
-        public IActionResult Index()
-
-        {
-            var products = _db.Products.ToList();
-            return View(products);
-        }
-
         // shows the empty add-form
         public IActionResult Create()
 
@@ -66,6 +58,18 @@ namespace Almamari_NewMVC.Controllers
                 _db.SaveChanges();
             }
             return RedirectToAction("Index");
+        }
+
+        public IActionResult Index(string searchString)
+        {
+            var products = _db.Products.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+               products = products.Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
+            }
+
+            ViewData["searchString"] = searchString;
+            return View(products.ToList());
         }
 
     }
